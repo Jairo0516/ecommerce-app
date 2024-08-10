@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('purchases_history', function (Blueprint $table) {
+        Schema::create('purchases_histories', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->nullable(false)->index();//RELACIÓN A DIVISA SELECCIONADA
             $table->foreignId('foreign_exchange_id')->nullable(false)->index();//RELACIÓN A DIVISA SELECCIONADA
@@ -31,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('purchases_history');
+        Schema::dropIfExists('purchases_histories');
     }
 };
