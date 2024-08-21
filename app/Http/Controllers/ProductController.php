@@ -2,102 +2,89 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
+
 use App\Models\Product;
+use App\Services\ProductsService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
-use function PHPUnit\Framework\isNull;
 
 class ProductController extends Controller
 {
+
+    private $service;
+
+
+    public function __construct(ProductsService $service)
+    {
+        $this->service = $service;
+    }
+
+
     /**
      * Store a newly created resource in storage.
      *
      * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
      */
-    public function store(Request $request) : Response
+
+    public function create(Request $request)
     {
-        $validator = \Validator::make($request->all(), [
-            'name' => 'required',
-            'description' => 'required',
-            'image' => 'required',
-            'tax' => 'required',
-            'manufacturing_cost' => 'required',
-            'value' => 'required',
-        ],
-            [
-                'name.required' => 'Name required',
-                'description.required' => 'Description required',
-                'image.required' => 'Image required.',
-                'tax.required' => 'Tax required.',
-                'manufacturing_cost.required' => 'Manufacturing cost required.',
-                'value.required' => 'Value required.',
-            ]
-        );
+        try {
+            $this->service->store($request);
 
-        if ($validator->fails()) {
-            return redirect('product/create')
-                ->withErrors($validator)
-                ->withInput();
+            return Inertia::render('Shop/CreateProduct', [
+                'status' => true,
+            ]);
+        }catch (\Exception $e){
+            return array('error'=> true, 'message' =>$e->getMessage());
         }
+    }
 
-        $product = new Product();
-        $product->name = strtoupper($request->name);
-        $product->description = strtoupper($request->description);
-        $product->image = $request->image;
-        $product->tax = $request->tax;
-        $product->manufacturing_cost = $request->manufacturing_cost;
-        $product->value = $request->value;
-        $product->created_at = \Carbon\Carbon::now();
-        $product->updated_at = \Carbon\Carbon::now();
-        $product->save();
+    /**
+     * Display the specified resource.
+     *
+     */
+    public function filter()
+    {
+        try {
+            $product = $this->service->show(request('product'));
 
-        return Inertia::render('Shop/CreateProduct', [
-            'status' => true,
+            return Inertia::render('Shop/ViewProduct', [
+                'product' => $product
+            ]);
+        }catch (\Exception $e){
+            return array('error'=> true, 'message' =>$e->getMessage());
+        }
+    }
+
+
+    /**
+     * Display the specified resource.
+     *
+     * @return Response
+     */
+    public function edit()
+    {
+        $product = $this->service->show(request('product'));
+        return Inertia::render('Shop/EditProduct', [
+            'product' => $product
         ]);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param int $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        $product = Product::find($id);
-        return view('/product/create', ['vehicle' => $product]);
-    }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param int $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        $product = Product::find($id);
-        return ($product);
-    }
 
     /**
      * Display the specified resource.
      *
      * @return array
      */
-    public function all($filter)
+    public function all()
     {
-        $products = [];
-        if($filter){
-            $products = Product::whereLike('name',  "%".$filter."%")->get();
-        }else{
-            $products = Product::all();
-
+        try {
+            return $this->service->getAll(request('filter'));
+        }catch (\Exception $e){
+            return array('error'=> true, 'message' =>$e->getMessage());
         }
-        return $products;
     }
 
 
@@ -106,26 +93,18 @@ class ProductController extends Controller
      *
      * @param \Illuminate\Http\Request $request
      * @param int $id
-     * @return \Illuminate\Http\Response
      */
-    public function update(Request $request) : Response
+    public function update(Request $request)
     {
+        try {
+            $this->service->update($request);
 
-        $product = Product::find($request->id);
-        $product->name = strtoupper($request->name);
-        $product->description = strtoupper($request->description);
-        $product->image = $request->image;
-        $product->tax = $request->tax;
-        $product->manufacturing_cost = $request->manufacturing_cost;
-        $product->value = $request->value;
-        $product->updated_at = \Carbon\Carbon::now();
-        $product->save();
-
-
-        return Inertia::render('Shop/EditProduct', [
-            'product' => $product,
-            'status' => true
-        ]);
+            return Inertia::render('Shop/EditProduct', [
+                'status' => true,
+            ]);
+        }catch (\Exception $e){
+            return array('error'=> true, 'message' =>$e->getMessage());
+        }
     }
 
     /**

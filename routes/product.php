@@ -9,44 +9,19 @@ use Inertia\Inertia;
 
 Route::prefix('product')->group(function () {
 
-    Route::get('/list', function () {
-        $filter = request('filter');
-        $product = new ProductController();
-        $product = $product->all($filter);
-
-        return Inertia::render('Shop/ListProduct',      [
-            'products' => $product
-        ]);
-    })->name('product/list');
-
-
-    Route::get('/show', function () {
-        $id = request('product');
-        $product = new ProductController();
-        $product = $product->show($id);
-        return Inertia::render('Shop/ViewProduct', [
-            'product' => $product
-        ]);
-    })->name('product/show');
+    Route::get('/list', [ProductController::class, 'all'])->name('product/list');
 
     Route::get('/create', function () {
         return Inertia::render('Shop/CreateProduct');
     })->name('product/create');
 
+    Route::post('register', [ProductController::class, 'create'])->name("product.store");
 
-    Route::post('register', [ProductController::class, 'store'])->name("product.store");
+    Route::get('/show', [ProductController::class, 'filter'])->name('product/show');
 
-    Route::get('/edit', function () {
-        $id = request('product');
-        $product = new ProductController();
-        $product = $product->show($id);
-        return Inertia::render('Shop/EditProduct', [
-            'product' => $product
-        ]);
-    })->name('product.edit');
+    Route::get('/edit', [ProductController::class, 'edit'])->name('product.edit');
 
     Route::put('update', [ProductController::class, 'update'])->name("product.update");
-
 
 })->middleware(['auth', 'verified']);
 

@@ -75,11 +75,11 @@ let addProduct = (product) => {
 
                 <div class="mt-4 col-start-1 row-start-3 self-center sm:mt-0 sm:col-start-2 sm:row-start-2 sm:row-span-2 lg:mt-6 lg:col-start-1 lg:row-start-3 lg:row-end-4">
                     <div class="text-lg font-semibold text-slate-500">
-                        $ {{product.value}} USD
+                        ${{product.value.toLocaleString('es-US')}} USD
                     </div>
                     <br>
                     <button type="button" class="bg-indigo-600 text-white text-sm leading-6 font-medium py-2 px-5 rounded-lg" @click="addProduct(product)">
-                        Agregar al carrito
+                        Add To Car
                     </button>
                     <br>
 
@@ -95,7 +95,7 @@ let addProduct = (product) => {
                       :href="route('product.edit', {product:product.id})"
                       type="button"
                       class="text-center bg-orange-400 text-white text-sm leading-6 font-medium py-1 px-2 rounded-lg">
-                    Editar Producto
+                    Edit Product
                 </Link>
             </div>
         </main>
